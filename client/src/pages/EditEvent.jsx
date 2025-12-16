@@ -8,13 +8,9 @@ import ImageUpload from '../components/ImageUpload';
 import LoadingSpinner from '../components/LoadingSpinner';
 
 const categories = [
-    { value: 'conference', label: 'Conference' },
-    { value: 'workshop', label: 'Workshop' },
-    { value: 'meetup', label: 'Meetup' },
-    { value: 'social', label: 'Social' },
-    { value: 'sports', label: 'Sports' },
-    { value: 'music', label: 'Music' },
-    { value: 'other', label: 'Other' },
+    { value: 'conference', label: 'Conference' }, { value: 'workshop', label: 'Workshop' },
+    { value: 'meetup', label: 'Meetup' }, { value: 'social', label: 'Social' },
+    { value: 'sports', label: 'Sports' }, { value: 'music', label: 'Music' }, { value: 'other', label: 'Other' },
 ];
 
 const EditEvent = () => {
@@ -25,9 +21,7 @@ const EditEvent = () => {
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [errors, setErrors] = useState({});
-    const [formData, setFormData] = useState({
-        title: '', description: '', date: '', time: '', location: '', capacity: '', category: 'meetup',
-    });
+    const [formData, setFormData] = useState({ title: '', description: '', date: '', time: '', location: '', capacity: '', category: 'meetup' });
     const [currentImage, setCurrentImage] = useState(null);
     const [newImage, setNewImage] = useState(null);
 
@@ -80,95 +74,108 @@ const EditEvent = () => {
             await eventApi.updateEvent(id, data);
             toast.success('Event updated!');
             navigate(`/event/${id}`);
-        } catch (err) {
-            toast.error(err.response?.data?.error || 'Update failed');
-        } finally { setSaving(false); }
+        } catch (err) { toast.error(err.response?.data?.error || 'Update failed'); }
+        finally { setSaving(false); }
     };
 
     if (loading) return <div className="page"><div className="container"><LoadingSpinner text="Loading..." /></div></div>;
 
-    const inputStyle = { paddingLeft: '48px' };
-    const iconStyle = { position: 'absolute', left: '16px', top: '16px', color: 'var(--color-text-muted)' };
+    const iconBoxStyle = { position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#8b5cf6' };
 
     return (
         <div className="page">
             <div className="container" style={{ maxWidth: '800px' }}>
-                <button onClick={() => navigate(-1)} className="btn btn-secondary" style={{ marginBottom: 'var(--space-lg)' }}>
+                <button onClick={() => navigate(-1)} className="btn btn-secondary" style={{ marginBottom: '1.5rem' }}>
                     <ArrowLeft size={18} /> Back
                 </button>
 
-                <div className="glass-card" style={{ padding: 'var(--space-xl)' }}>
-                    <h1 style={{ marginBottom: 'var(--space-xl)' }}>Edit Event</h1>
+                <div className="glass-card" style={{ padding: '2rem' }}>
+                    <h1 style={{ fontSize: '1.75rem', fontWeight: '700', marginBottom: '2rem', color: '#f9fafb' }}>Edit Event</h1>
+
                     <form onSubmit={handleSubmit}>
+                        {/* Image Upload */}
                         <div className="form-group">
                             <label className="form-label">Event Image</label>
-                            <ImageUpload image={currentImage} onImageChange={(f) => { setNewImage(f); setCurrentImage(URL.createObjectURL(f)); }} onImageRemove={() => { setNewImage(null); setCurrentImage(null); }} />
+                            <ImageUpload
+                                image={currentImage}
+                                onImageChange={(f) => { setNewImage(f); setCurrentImage(URL.createObjectURL(f)); }}
+                                onImageRemove={() => { setNewImage(null); setCurrentImage(null); }}
+                            />
                         </div>
 
-                        {[
-                            { name: 'title', label: 'Title *', icon: Type, type: 'text' },
-                            { name: 'location', label: 'Location *', icon: MapPin, type: 'text' },
-                        ].map(({ name, label, icon: Icon, type }) => (
-                            <div className="form-group" key={name}>
-                                <label className="form-label">{label}</label>
-                                <div style={{ position: 'relative' }}>
-                                    <Icon size={18} style={iconStyle} />
-                                    <input name={name} type={type} value={formData[name]} onChange={handleChange} className="form-input" style={inputStyle} disabled={saving} />
-                                </div>
-                                {errors[name] && <p className="form-error">{errors[name]}</p>}
+                        {/* Title */}
+                        <div className="form-group">
+                            <label className="form-label">Title *</label>
+                            <div style={{ position: 'relative' }}>
+                                <Type size={18} style={iconBoxStyle} />
+                                <input name="title" type="text" value={formData.title} onChange={handleChange} className="form-input" style={{ paddingLeft: '44px' }} placeholder="Event title" disabled={saving} />
                             </div>
-                        ))}
+                            {errors.title && <p className="form-error">{errors.title}</p>}
+                        </div>
 
+                        {/* Location */}
+                        <div className="form-group">
+                            <label className="form-label">Location *</label>
+                            <div style={{ position: 'relative' }}>
+                                <MapPin size={18} style={iconBoxStyle} />
+                                <input name="location" type="text" value={formData.location} onChange={handleChange} className="form-input" style={{ paddingLeft: '44px' }} placeholder="Event location" disabled={saving} />
+                            </div>
+                            {errors.location && <p className="form-error">{errors.location}</p>}
+                        </div>
+
+                        {/* Description */}
                         <div className="form-group">
                             <label className="form-label">Description *</label>
                             <div style={{ position: 'relative' }}>
-                                <AlignLeft size={18} style={iconStyle} />
-                                <textarea name="description" value={formData.description} onChange={handleChange} className="form-input form-textarea" style={inputStyle} rows={4} disabled={saving} />
+                                <AlignLeft size={18} style={{ position: 'absolute', left: '12px', top: '16px', color: '#8b5cf6' }} />
+                                <textarea name="description" value={formData.description} onChange={handleChange} className="form-input form-textarea" style={{ paddingLeft: '44px' }} rows={4} placeholder="Describe your event..." disabled={saving} />
                             </div>
                             {errors.description && <p className="form-error">{errors.description}</p>}
                         </div>
 
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-lg)' }}>
+                        {/* Date & Time */}
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                             <div className="form-group">
                                 <label className="form-label">Date *</label>
                                 <div style={{ position: 'relative' }}>
-                                    <Calendar size={18} style={iconStyle} />
-                                    <input name="date" type="date" value={formData.date} onChange={handleChange} className="form-input" style={inputStyle} disabled={saving} />
+                                    <Calendar size={18} style={iconBoxStyle} />
+                                    <input name="date" type="date" value={formData.date} onChange={handleChange} className="form-input" style={{ paddingLeft: '44px' }} disabled={saving} />
                                 </div>
                                 {errors.date && <p className="form-error">{errors.date}</p>}
                             </div>
                             <div className="form-group">
                                 <label className="form-label">Time *</label>
                                 <div style={{ position: 'relative' }}>
-                                    <Clock size={18} style={iconStyle} />
-                                    <input name="time" type="time" value={formData.time} onChange={handleChange} className="form-input" style={inputStyle} disabled={saving} />
+                                    <Clock size={18} style={iconBoxStyle} />
+                                    <input name="time" type="time" value={formData.time} onChange={handleChange} className="form-input" style={{ paddingLeft: '44px' }} disabled={saving} />
                                 </div>
                                 {errors.time && <p className="form-error">{errors.time}</p>}
                             </div>
                         </div>
 
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-lg)' }}>
+                        {/* Capacity & Category */}
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                             <div className="form-group">
                                 <label className="form-label">Capacity *</label>
                                 <div style={{ position: 'relative' }}>
-                                    <Users size={18} style={iconStyle} />
-                                    <input name="capacity" type="number" min="1" value={formData.capacity} onChange={handleChange} className="form-input" style={inputStyle} disabled={saving} />
+                                    <Users size={18} style={iconBoxStyle} />
+                                    <input name="capacity" type="number" min="1" value={formData.capacity} onChange={handleChange} className="form-input" style={{ paddingLeft: '44px' }} placeholder="50" disabled={saving} />
                                 </div>
                                 {errors.capacity && <p className="form-error">{errors.capacity}</p>}
                             </div>
                             <div className="form-group">
                                 <label className="form-label">Category</label>
                                 <div style={{ position: 'relative' }}>
-                                    <Tag size={18} style={{ ...iconStyle, zIndex: 1 }} />
-                                    <select name="category" value={formData.category} onChange={handleChange} className="form-input form-select" style={inputStyle} disabled={saving}>
+                                    <Tag size={18} style={iconBoxStyle} />
+                                    <select name="category" value={formData.category} onChange={handleChange} className="form-input form-select" style={{ paddingLeft: '44px' }} disabled={saving}>
                                         {categories.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
                                     </select>
                                 </div>
                             </div>
                         </div>
 
-                        <button type="submit" className="btn btn-primary btn-lg w-full" disabled={saving} style={{ marginTop: 'var(--space-lg)' }}>
-                            {saving ? <><div className="spinner" style={{ width: '20px', height: '20px' }} /> Saving...</> : <><Save size={20} /> Save Changes</>}
+                        <button type="submit" className="btn btn-primary btn-lg w-full" disabled={saving} style={{ marginTop: '1.5rem' }}>
+                            {saving ? 'Saving...' : <><Save size={20} /> Save Changes</>}
                         </button>
                     </form>
                 </div>

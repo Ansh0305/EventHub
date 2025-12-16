@@ -24,6 +24,7 @@ const Signup = () => {
         finally { setLoading(false); }
     };
 
+    const iconStyle = { position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#8b5cf6' };
     const fields = [
         { name: 'name', label: 'Name', type: 'text', icon: User, placeholder: 'Your name' },
         { name: 'email', label: 'Email', type: 'email', icon: Mail, placeholder: 'Your email' },
@@ -35,14 +36,14 @@ const Signup = () => {
         <div className="page auth-page">
             <div className="container">
                 <div className="auth-card glass-card">
-                    <h1 style={{ textAlign: 'center', marginBottom: 'var(--space-xl)' }}>Create Account</h1>
+                    <h1 style={{ textAlign: 'center', marginBottom: '2rem', color: '#f9fafb', fontSize: '1.75rem', fontWeight: '700' }}>Create Account</h1>
                     <form onSubmit={handleSubmit}>
                         {fields.map(({ name, label, type, icon: Icon, placeholder }) => (
                             <div className="form-group" key={name}>
                                 <label className="form-label">{label}</label>
                                 <div style={{ position: 'relative' }}>
-                                    <Icon size={18} style={{ position: 'absolute', left: '16px', top: '16px', color: 'var(--color-text-muted)' }} />
-                                    <input type={type} value={formData[name]} onChange={(e) => setFormData({ ...formData, [name]: e.target.value })} className="form-input" style={{ paddingLeft: '48px' }} placeholder={placeholder} disabled={loading} />
+                                    <Icon size={18} style={iconStyle} />
+                                    <input type={type} value={formData[name]} onChange={(e) => setFormData({ ...formData, [name]: e.target.value })} className="form-input" style={{ paddingLeft: '44px' }} placeholder={placeholder} disabled={loading} />
                                 </div>
                             </div>
                         ))}
@@ -50,8 +51,8 @@ const Signup = () => {
                             {loading ? 'Creating...' : <><UserPlus size={20} /> Create Account</>}
                         </button>
                     </form>
-                    <p style={{ textAlign: 'center', marginTop: 'var(--space-lg)' }}>
-                        Already have an account? <Link to="/login" style={{ color: 'var(--color-primary-light)' }}>Login</Link>
+                    <p style={{ textAlign: 'center', marginTop: '1.5rem', color: '#9ca3af' }}>
+                        Already have an account? <Link to="/login" style={{ color: '#a78bfa' }}>Login</Link>
                     </p>
                 </div>
             </div>
