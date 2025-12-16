@@ -1,0 +1,102 @@
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
+import { Type, AlignLeft, Calendar, Clock, MapPin, Users, Tag, Plus, ArrowLeft } from 'lucide-react';
+import { eventApi } from '../services/api';
+import ImageUpload from '../components/ImageUpload';
+
+const categories = [
+    { value: 'conference', label: 'Conference' }, { value: 'workshop', label: 'Workshop' },
+    { value: 'meetup', label: 'Meetup' }, { value: 'social', label: 'Social' },
+    { value: 'sports', label: 'Sports' }, { value: 'music', label: 'Music' }, { value: 'other', label: 'Other' },
+];
+
+const CreateEvent = () => {
+    const navigate = useNavigate();
+    const [loading, setLoading] = useState(false);
+    const [errors, setErrors] = useState({});
+    const [formData, setFormData] = useState({ title: '', description: '', date: '', time: '', location: '', capacity: '', category: 'meetup' });
+    const [image, setImage] = useState(null);
+
+    const handleChange = (e) => {
+        setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+        if (errors[e.target.name]) setErrors(prev => ({ ...prev, [e.target.name]: null }));
+    };
+
+    const validate = () => {
+        const e = {};
+        if (!formData.title.trim()) e.title = 'Required';
+        if (!formData.description.trim()) e.description = 'Required';
+        if (!formData.date) e.date = 'Required';
+        if (!formData.time) e.time = 'Required';
+        if (!formData.location.trim()) e.location = 'Required';
+        if (!formData.capacity || parseInt(formData.capacity) < 1) e.capacity = 'Min 1';
+        setErrors(e);
+        return !Object.keys(e).length;
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (!validate()) return;
+        setLoading(true);
+        try {
+            const data = new FormData();
+            Object.entries(formData).forEach(([k, v]) => data.append(k, v));
+            if (image) data.append('image', image);
+            const res = await eventApi.createEvent(data);
+            toast.success('Event created!');
+            navigate(`/event/${res.data.event._id}`);
+        } catch (err) { toast.error(err.response?.data?.error || 'Failed'); }
+        finally { setLoading(false); }
+    };
+
+    const inputStyle = { paddingLeft: '48px' };
+    const iconStyle = { position: 'absolute', left: '16px', top: '16px', color: 'var(--color-text-muted)' };
+
+    return (
+        <div className="page">
+            <div className="container" style={{ maxWidth: '800px' }}>
+                <button onClick={() => navigate(-1)} className="btn btn-secondary" style={{ marginBottom: 'var(--space-lg)' }}><ArrowLeft size={18} /> Back</button>
+                <div className="glass-card" style={{ padding: 'var(--space-xl)' }}>
+                    <h1 style={{ marginBottom: 'var(--space-xl)' }}>Create Event</h1>
+                    <form onSubmit={handleSubmit}>
+                        <div className="form-group">
+                            <label className="form-label">Event Image</label>
+                            <ImageUpload image={image} onImageChange={setImage} onImageRemove={() => setImage(null)} />
+                        </div>
+
+                        {[{ name: 'title', label: 'Title *', icon: Type, type: 'text' }, { name: 'location', label: 'Location *', icon: MapPin, type: 'text' }].map(({ name, label, icon: Icon, type }) => (
+                            <div className="form-group" key={name}>
+                                <label className="form-label">{label}</label>
+                                <div style={{ position: 'relative' }}><Icon size={18} style={iconStyle} /><input name={name} type={type} value={formData[name]} onChange={handleChange} className="form-input" style={inputStyle} disabled={loading} /></div>
+                                {errors[name] && <p className="form-error">{errors[name]}</p>}
+                            </div>
+                        ))}
+
+                        <div className="form-group">
+                            <label className="form-label">Description *</label>
+                            <div style={{ position: 'relative' }}><AlignLeft size={18} style={iconStyle} /><textarea name="description" value={formData.description} onChange={handleChange} className="form-input form-textarea" style={inputStyle} rows={4} disabled={loading} /></div>
+                            {errors.description && <p className="form-error">{errors.description}</p>}
+                        </div>
+
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-lg)' }}>
+                            <div className="form-group"><label className="form-label">Date *</label><div style={{ position: 'relative' }}><Calendar size={18} style={iconStyle} /><input name="date" type="date" value={formData.date} onChange={handleChange} className="form-input" style={inputStyle} disabled={loading} /></div>{errors.date && <p className="form-error">{errors.date}</p>}</div>
+                            <div className="form-group"><label className="form-label">Time *</label><div style={{ position: 'relative' }}><Clock size={18} style={iconStyle} /><input name="time" type="time" value={formData.time} onChange={handleChange} className="form-input" style={inputStyle} disabled={loading} /></div>{errors.time && <p className="form-error">{errors.time}</p>}</div>
+                        </div>
+
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-lg)' }}>
+                            <div className="form-group"><label className="form-label">Capacity *</label><div style={{ position: 'relative' }}><Users size={18} style={iconStyle} /><input name="capacity" type="number" min="1" value={formData.capacity} onChange={handleChange} className="form-input" style={inputStyle} disabled={loading} /></div>{errors.capacity && <p className="form-error">{errors.capacity}</p>}</div>
+                            <div className="form-group"><label className="form-label">Category</label><div style={{ position: 'relative' }}><Tag size={18} style={{ ...iconStyle, zIndex: 1 }} /><select name="category" value={formData.category} onChange={handleChange} className="form-input form-select" style={inputStyle} disabled={loading}>{categories.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}</select></div></div>
+                        </div>
+
+                        <button type="submit" className="btn btn-primary btn-lg w-full" disabled={loading} style={{ marginTop: 'var(--space-lg)' }}>
+                            {loading ? 'Creating...' : <><Plus size={20} /> Create Event</>}
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default CreateEvent;
