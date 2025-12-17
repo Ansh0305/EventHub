@@ -6,8 +6,8 @@ A full-stack MERN application for creating, viewing, and RSVPing to events with 
 
 ## 🚀 Live Demo
 
-- **Frontend**: [https://your-frontend.vercel.app](https://your-frontend.vercel.app)
-- **Backend API**: [https://your-backend.onrender.com](https://your-backend.onrender.com)
+- **Frontend**: [Deployed on Vercel](https://eventhub-ansh.vercel.app)
+- **Backend API**: [Deployed on Render](https://eventhub-api.onrender.com)
 
 ## ✨ Features
 
@@ -210,8 +210,8 @@ With our atomic approach, the race condition is prevented:
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/event-management.git
-cd event-management
+git clone https://github.com/Ansh0305/EventHub.git
+cd EventHub
 ```
 
 ### 2. Backend Setup
