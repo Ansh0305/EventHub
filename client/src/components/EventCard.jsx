@@ -1,3 +1,4 @@
+
 import { Link } from 'react-router-dom';
 import { format } from 'date-fns';
 import { Calendar, Clock, MapPin, Users } from 'lucide-react';
